@@ -142,6 +142,39 @@
     border: 1px solid var(--border);
     white-space: nowrap;
   }
+  .top-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex: none; }
+
+  /* ---------- nav menu (top-right dropdown) ---------- */
+  .nav-menu { position: relative; }
+  .nav-menu-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: "IBM Plex Sans", sans-serif; font-size: 13.5px; font-weight: 600;
+    padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border-2);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+    min-height: 42px; white-space: nowrap;
+  }
+  .nav-menu-btn:hover { border-color: var(--accent); }
+  .nav-chev { font-size: 10px; color: var(--muted); transition: transform .15s ease; }
+  .nav-menu.open .nav-chev { transform: rotate(180deg); }
+  .nav-menu-list {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
+    background: var(--surface); border: 1px solid var(--border-2); border-radius: 12px;
+    padding: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 240px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+  }
+  .nav-menu-list[hidden] { display: none; }
+  .nav-menu-item {
+    display: flex; align-items: center; gap: 10px; text-align: left; width: 100%;
+    font-family: "IBM Plex Sans", sans-serif; font-size: 14px; font-weight: 500;
+    padding: 11px 12px; border-radius: 8px; border: none; background: transparent;
+    color: var(--ink-2); cursor: pointer; min-height: 44px;
+  }
+  .nav-menu-item:hover { background: var(--page); color: var(--ink); }
+  .nav-menu-item.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+
+  /* ---------- pages ---------- */
+  .page { display: flex; flex-direction: column; gap: 28px; }
+  .page[hidden] { display: none; }
 
   /* ---------- stat tiles ---------- */
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 12px; }
@@ -259,7 +292,26 @@
   .view-switch button.active { background: var(--accent-bg); color: var(--accent); }
 
   /* ---------- calendar view ---------- */
+  .cal-mode-switch { display: inline-flex; border: 1px solid var(--border-2); border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .cal-mode-switch button {
+    padding: 7px 14px; font-size: 12.5px; font-family: "IBM Plex Sans", sans-serif; font-weight: 600;
+    background: var(--surface); color: var(--ink-2); border: none; cursor: pointer; min-height: 38px;
+  }
+  .cal-mode-switch button + button { border-left: 1px solid var(--border-2); }
+  .cal-mode-switch button.active { background: var(--practica-bg); color: var(--practica); }
+  .cal-month-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 14px; }
+  .cal-month-nav[hidden] { display: none; }
+  .cal-month-nav button {
+    width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-2);
+    background: var(--surface); color: var(--ink); font-size: 16px; cursor: pointer;
+  }
+  .cal-month-nav button:disabled { opacity: 0.3; cursor: default; }
+  .cal-month-nav button:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+  .cal-month-label { font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 15px; text-transform: capitalize; min-width: 150px; text-align: center; }
   .calendar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px; margin-bottom: 16px; }
+  .calendar-grid.single { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .calendar-grid.single .mcal-day { font-size: 13px; }
+  .calendar-grid.single .mcal-dots .dot { width: 6px; height: 6px; }
   .month-cal { border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
   .month-cal .mcal-title { font-weight: 700; font-size: 13.5px; margin-bottom: 8px; text-transform: capitalize; }
   .mcal-dow { display: grid; grid-template-columns: repeat(7, 1fr); font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; text-align: center; }
@@ -405,63 +457,90 @@
       <h1>Curso 2026/27 — Asignaturas pendientes</h1>
       <p class="subtitle">9 asignaturas para terminar la carrera. Calendario de exámenes, entregas y criterios de evaluación de cada una, con las particularidades del régimen de dispensa.</p>
     </div>
-    <span class="dispensa-pill">● Evaluación: Dispensa</span>
+    <div class="top-actions">
+      <span class="dispensa-pill">● Evaluación: Dispensa</span>
+      <div class="nav-menu" id="navMenu">
+        <button class="nav-menu-btn" id="navMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span id="navMenuLabel">🏠 Inicio</span><span class="nav-chev">▾</span>
+        </button>
+        <div class="nav-menu-list" id="navMenuList" hidden>
+          <button class="nav-menu-item active" type="button" data-page="inicio">🏠 Inicio</button>
+          <button class="nav-menu-item" type="button" data-page="cronologia">📅 Cronología y calendario</button>
+          <button class="nav-menu-item" type="button" data-page="asignaturas">📚 Ficha de asignaturas</button>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <div class="stats" id="stats"></div>
+  <div class="page" id="page-inicio">
+    <div class="stats" id="stats"></div>
 
-  <div class="week-panel">
-    <div class="head">
-      <h2>Próximas dos semanas</h2>
-      <span class="range" id="weekRange"></span>
+    <div class="week-panel">
+      <div class="head">
+        <h2>Próximas dos semanas</h2>
+        <span class="range" id="weekRange"></span>
+      </div>
+      <div class="week-list" id="weekList"></div>
     </div>
-    <div class="week-list" id="weekList"></div>
+
+    <section class="card">
+      <h2>Prácticas — entregas semana a semana</h2>
+      <p class="desc">Solo las entregas y evaluaciones prácticas con fecha ya fijada, agrupadas por semana. Usa las mismas casillas que la cronología.</p>
+      <div id="practicalsWeekly"></div>
+      <div class="practicals-note">
+        <strong>Sin fecha semanal fija todavía:</strong> ISW (entregables 1 y 2 del proyecto, según tu grupo), CPA (test de laboratorio P1 y P2, según sesión), BDA (las 6 PLC se hacen en horario de prácticas durante el curso, sin fecha suelta), TSR (las prácticas se evalúan dentro de los propios parciales, no hay entrega aparte) y SIO (10 sesiones de prácticas, fechas por grupo). En cuanto tengas esas fechas, dímelas y las añado aquí.
+      </div>
+    </section>
+
+    <div class="pending">
+      <h2>⚑ Pendiente de confirmar con el profesorado</h2>
+      <ul>
+        <li><strong>AIC</strong> — día exacto de los exámenes de prácticas (semanas 9–13 nov y 16–22 dic), según tu grupo de laboratorio.</li>
+        <li><strong>CPA</strong> — día y hora exactos del Parcial 1 dentro de la ventana 29 oct–4 nov, según tu grupo.</li>
+        <li><strong>ISW</strong> — fechas concretas de los entregables 1 y 2 del proyecto y de los casos prácticos en clase.</li>
+        <li><strong>COP</strong> — si la dispensa de asistencia te exime o no del máximo de 40% de ausencia (el texto sugiere que no).</li>
+        <li><strong>TSR</strong> — el calendario oficial de exámenes pone el 2º parcial en sábado 16 de enero de 2027; la presentación del curso decía 15 de enero. Confirmar cuál es correcto.</li>
+        <li><strong>27 de enero de 2027</strong> — ese día coinciden las recuperaciones de AIC, ISW y DBD (teoría y prácticas). Revisa bien los horarios de cada una en cuanto se publiquen para no chocar.</li>
+      </ul>
+    </div>
+
+    <footer class="foot">Elaborado a partir de las guías docentes y calendarios de examen compartidos (UPV, curso 2026/27). Actualiza las fechas aquí si la escuela publica cambios.</footer>
   </div>
 
-  <section class="card">
-    <h2>Cronología del cuatrimestre</h2>
-    <p class="desc">Marca lo que ya has hecho — se guarda automáticamente. Los eventos con ⚑ dependen de tu grupo de teoría o laboratorio: confirma el día exacto.</p>
-    <div class="view-switch" id="viewSwitch">
-      <button data-view="timeline" class="active">☰ Cronología</button>
-      <button data-view="calendar">▦ Calendario</button>
-    </div>
-    <div class="toolbar" id="filterBar" style="margin-bottom:14px;"></div>
-    <div id="timeline"></div>
-    <div id="calendarView" hidden>
-      <div class="type-legend" id="typeLegend"></div>
-      <div class="calendar-grid" id="calendarGrid"></div>
-      <div class="day-detail" id="dayDetail"><p class="dd-empty">Toca un día marcado para ver el detalle.</p></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Prácticas — entregas semana a semana</h2>
-    <p class="desc">Solo las entregas y evaluaciones prácticas con fecha ya fijada, agrupadas por semana. Usa las mismas casillas que la cronología.</p>
-    <div id="practicalsWeekly"></div>
-    <div class="practicals-note">
-      <strong>Sin fecha semanal fija todavía:</strong> ISW (entregables 1 y 2 del proyecto, según tu grupo), CPA (test de laboratorio P1 y P2, según sesión), BDA (las 6 PLC se hacen en horario de prácticas durante el curso, sin fecha suelta), TSR (las prácticas se evalúan dentro de los propios parciales, no hay entrega aparte) y SIO (10 sesiones de prácticas, fechas por grupo). En cuanto tengas esas fechas, dímelas y las añado aquí.
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Ficha de cada asignatura</h2>
-    <p class="desc">Pesos de evaluación, mínimos y qué cambia con la dispensa. Toca una asignatura para desplegarla.</p>
-    <div class="subject-grid" id="subjectGrid" style="margin-bottom:14px;"></div>
-  </section>
-
-  <div class="pending">
-    <h2>⚑ Pendiente de confirmar con el profesorado</h2>
-    <ul>
-      <li><strong>AIC</strong> — día exacto de los exámenes de prácticas (semanas 9–13 nov y 16–22 dic), según tu grupo de laboratorio.</li>
-      <li><strong>CPA</strong> — día y hora exactos del Parcial 1 dentro de la ventana 29 oct–4 nov, según tu grupo.</li>
-      <li><strong>ISW</strong> — fechas concretas de los entregables 1 y 2 del proyecto y de los casos prácticos en clase.</li>
-      <li><strong>COP</strong> — si la dispensa de asistencia te exime o no del máximo de 40% de ausencia (el texto sugiere que no).</li>
-      <li><strong>TSR</strong> — el calendario oficial de exámenes pone el 2º parcial en sábado 16 de enero de 2027; la presentación del curso decía 15 de enero. Confirmar cuál es correcto.</li>
-      <li><strong>27 de enero de 2027</strong> — ese día coinciden las recuperaciones de AIC, ISW y DBD (teoría y prácticas). Revisa bien los horarios de cada una en cuanto se publiquen para no chocar.</li>
-    </ul>
+  <div class="page" id="page-cronologia" hidden>
+    <section class="card">
+      <h2>Cronología del cuatrimestre</h2>
+      <p class="desc">Marca lo que ya has hecho — se guarda automáticamente. Los eventos con ⚑ dependen de tu grupo de teoría o laboratorio: confirma el día exacto.</p>
+      <div class="view-switch" id="viewSwitch">
+        <button data-view="timeline" class="active">☰ Cronología</button>
+        <button data-view="calendar">▦ Calendario</button>
+      </div>
+      <div class="toolbar" id="filterBar" style="margin-bottom:14px;"></div>
+      <div id="timeline"></div>
+      <div id="calendarView" hidden>
+        <div class="cal-mode-switch" id="calModeSwitch">
+          <button type="button" data-mode="all" class="active">Todos los meses</button>
+          <button type="button" data-mode="single">Mensual</button>
+        </div>
+        <div class="cal-month-nav" id="calMonthNav" hidden>
+          <button type="button" id="calPrev" aria-label="Mes anterior">←</button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button type="button" id="calNext" aria-label="Mes siguiente">→</button>
+        </div>
+        <div class="type-legend" id="typeLegend"></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="day-detail" id="dayDetail"><p class="dd-empty">Toca un día marcado para ver el detalle.</p></div>
+      </div>
+    </section>
   </div>
 
-  <footer class="foot">Elaborado a partir de las guías docentes y calendarios de examen compartidos (UPV, curso 2026/27). Actualiza las fechas aquí si la escuela publica cambios.</footer>
+  <div class="page" id="page-asignaturas" hidden>
+    <section class="card">
+      <h2>Ficha de cada asignatura</h2>
+      <p class="desc">Pesos de evaluación, mínimos y qué cambia con la dispensa. Toca una asignatura para desplegarla.</p>
+      <div class="subject-grid" id="subjectGrid" style="margin-bottom:14px;"></div>
+    </section>
+  </div>
 </div>
 
 <script>
@@ -748,7 +827,6 @@
     const nextDays = next ? Math.max(0, daysBetween(today, eventStart(next))) : null;
     const done = Object.keys(checklist).filter(function (k) { return checklist[k]; }).length;
     el.innerHTML =
-      stat("Asignaturas pendientes", "9", "AIC · BDA · ISW · CPA · TSR · DBD · COP · SIE · SIO") +
       stat("Próximo evento", nextVal, next ? (nextDays === 0 ? "es hoy" : "dentro de " + nextDays + " días") + " — " + next.title : "sin eventos") +
       stat("Recta final del cuatrimestre", "29 ene 2027", "última recuperación (TSR / COP)") +
       stat("Marcados como hechos", done + " / " + allEvents().length, "de los eventos del calendario");
@@ -891,10 +969,27 @@
   }
 
   let selectedDate = null;
+  let calMode = "all";
+  let calMonthIndex = Math.max(0, CAL_MONTHS.findIndex(function (ym) {
+    return ym[0] === today.getFullYear() && ym[1] === today.getMonth();
+  }));
 
   function renderCalendar() {
     const grid = document.getElementById("calendarGrid");
-    grid.innerHTML = CAL_MONTHS.map(function (ym) { return monthCalHtml(ym[0], ym[1]); }).join("");
+    const nav = document.getElementById("calMonthNav");
+    if (calMode === "single") {
+      nav.hidden = false;
+      const ym = CAL_MONTHS[calMonthIndex];
+      document.getElementById("calMonthLabel").textContent = MONTHS[ym[1]] + " " + ym[0];
+      document.getElementById("calPrev").disabled = calMonthIndex === 0;
+      document.getElementById("calNext").disabled = calMonthIndex === CAL_MONTHS.length - 1;
+      grid.className = "calendar-grid single";
+      grid.innerHTML = monthCalHtml(ym[0], ym[1]);
+    } else {
+      nav.hidden = true;
+      grid.className = "calendar-grid";
+      grid.innerHTML = CAL_MONTHS.map(function (ym) { return monthCalHtml(ym[0], ym[1]); }).join("");
+    }
     grid.querySelectorAll(".mcal-day.clickable").forEach(function (cell) {
       cell.addEventListener("click", function () {
         selectedDate = cell.getAttribute("data-date");
@@ -902,6 +997,23 @@
       });
     });
     renderDayDetail();
+  }
+
+  function setupCalModeSwitch() {
+    const sw = document.getElementById("calModeSwitch");
+    sw.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        calMode = btn.getAttribute("data-mode");
+        sw.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+        renderCalendar();
+      });
+    });
+    document.getElementById("calPrev").addEventListener("click", function () {
+      if (calMonthIndex > 0) { calMonthIndex--; renderCalendar(); }
+    });
+    document.getElementById("calNext").addEventListener("click", function () {
+      if (calMonthIndex < CAL_MONTHS.length - 1) { calMonthIndex++; renderCalendar(); }
+    });
   }
 
   function monthCalHtml(year, month) {
@@ -1037,10 +1149,57 @@
     if (currentView === "calendar") renderCalendar();
   }
 
+  // ---------------- top-right nav menu (page switch) ----------------
+  const PAGES = ["inicio", "cronologia", "asignaturas"];
+  const PAGE_LABELS = { inicio: "🏠 Inicio", cronologia: "📅 Cronología", asignaturas: "📚 Asignaturas" };
+  let currentPage = "inicio";
+
+  function setupNavMenu() {
+    const wrap = document.getElementById("navMenu");
+    const btn = document.getElementById("navMenuBtn");
+    const list = document.getElementById("navMenuList");
+    const label = document.getElementById("navMenuLabel");
+
+    function closeMenu() {
+      list.hidden = true;
+      wrap.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+    function openMenu() {
+      list.hidden = false;
+      wrap.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+    }
+
+    btn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (list.hidden) openMenu(); else closeMenu();
+    });
+    list.querySelectorAll(".nav-menu-item").forEach(function (item) {
+      item.addEventListener("click", function () {
+        currentPage = item.getAttribute("data-page");
+        label.textContent = PAGE_LABELS[currentPage];
+        list.querySelectorAll(".nav-menu-item").forEach(function (i) { i.classList.toggle("active", i === item); });
+        PAGES.forEach(function (p) { document.getElementById("page-" + p).hidden = p !== currentPage; });
+        closeMenu();
+        window.scrollTo(0, 0);
+        if (currentPage === "cronologia") { renderTimeline(); if (currentView === "calendar") renderCalendar(); }
+      });
+    });
+    document.addEventListener("click", function (ev) {
+      if (!wrap.contains(ev.target)) closeMenu();
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") closeMenu();
+    });
+  }
+
   renderFilterBar();
   renderSubjects();
   renderTypeLegend();
   setupViewSwitch();
+  setupCalModeSwitch();
+  setupNavMenu();
   initPersistence();
 
   if (window.claude && window.claude.hot) {
